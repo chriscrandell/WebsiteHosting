@@ -76,9 +76,9 @@
     <section id="plan">
       <h2>Plan Your Trip</h2>
       <ul>
-        <li><a href="#lodging">Find lodging</a></li>
-        <li><a href="#attractions">Explore attractions</a></li>
-        <li><a href="#transport">Check transportation</a></li>
+        <li><a onclick="showSection('lodging')">Find lodging</a></li>
+        <li><a onclick="showSection('attractions')">Explore attractions</a></li>
+        <li><a onclick="showSection('transport')">Check transportation</a></li>
         <li>Learn safety and holiday info</li>
       </ul>
     </section>
