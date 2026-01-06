@@ -76,9 +76,9 @@
     <section id="plan">
       <h2>Plan Your Trip</h2>
       <ul>
-        <li>Find lodging options</li>
-        <li>Explore attractions</li>
-        <li>Check transportation</li>
+        <li><a href="#lodging">Find lodging</a></li>
+        <li><a href="#attractions">Explore attractions</a></li>
+        <li><a href="#transport">Check transportation</a></li>
         <li>Learn safety and holiday info</li>
       </ul>
     </section>
