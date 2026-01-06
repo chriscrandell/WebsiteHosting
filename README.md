@@ -52,10 +52,10 @@
     <section id="lodging">
       <h2>Lodging Options</h2>
       <ul>
-        <li>4-Star Resort — $$$</li>
-        <li>Family-Owned Hotels — $$</li>
-        <li>Bed & Breakfasts — $$</li>
-        <li>Hostel — $</li>
+        <li>4-Star Resort — $200 per night</li>
+        <li>Family-Owned Hotels — $99 per night</li>
+        <li>Bed & Breakfasts — $80 per night</li>
+        <li>Hostel — $49 per night</li>
       </ul>
     </section>
     
