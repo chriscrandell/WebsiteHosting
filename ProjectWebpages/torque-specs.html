@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Torque Specs</title>
+    <link rel="stylesheet" href="project-robin.css" />
+  </head>
+  <body>
+    <div class="page">
+      <header class="hero">
+        <h1>Torque specs library</h1>
+        <p>Search for fasteners, clamps, and hardware by part name and instantly pull the torque requirements and notes.</p>
+        <div class="nav-links">
+          <a href="projects.html">Project hub</a>
+          <a href="wiring.html">Wiring</a>
+          <a href="vin-database.html">VIN database</a>
+        </div>
+      </header>
+
+      <section class="panel">
+        <input id="torqueSearch" placeholder="Search wheel, bolt, pulley..." />
+        <div id="torqueResults" style="margin-top: 12px;"></div>
+      </section>
+    </div>
+
+    <script>
+      const specs = [
+        { name: "Wheel Bolts", torque: "110 Nm", tool: "Socket", threadlocker: "No", replace: "No" },
+        { name: "Oil Pan Bolts", torque: "12 Nm", tool: "Torque wrench", threadlocker: "No", replace: "No" },
+        { name: "Turbo Feed Line", torque: "18 Nm", tool: "Flare wrench", threadlocker: "No", replace: "Yes" }
+      ];
+      const torqueSearch = document.getElementById("torqueSearch");
+      const torqueResults = document.getElementById("torqueResults");
+
+      function renderTorque() {
+        const query = torqueSearch.value.toLowerCase();
+        const filtered = specs.filter((spec) => spec.name.toLowerCase().includes(query));
+        torqueResults.innerHTML = filtered.map((spec) => `
+          <div class="list-card">
+            <h4>${spec.name}</h4>
+            <p><strong>Torque:</strong> ${spec.torque} • <strong>Tool:</strong> ${spec.tool}</p>
+            <p><strong>Threadlocker:</strong> ${spec.threadlocker} • <strong>Replace?</strong> ${spec.replace}</p>
+          </div>
+        `).join("");
+      }
+      torqueSearch.addEventListener("input", renderTorque);
+      renderTorque();
+    </script>
+  </body>
+</html>

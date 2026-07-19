@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Interactive Wiring</title>
+    <link rel="stylesheet" href="project-robin.css" />
+  </head>
+  <body>
+    <div class="page">
+      <header class="hero">
+        <h1>Interactive wiring map</h1>
+        <p>Click a component to reveal its connected circuits, sensors, and installation dependencies.</p>
+        <div class="nav-links">
+          <a href="projects.html">Project hub</a>
+          <a href="torque-specs.html">Torque specs</a>
+          <a href="vin-database.html">VIN database</a>
+        </div>
+      </header>
+
+      <section class="panel">
+        <div class="wiring-grid">
+          <div class="panel" style="margin-bottom: 0;">
+            <h3>Fuel pump circuit</h3>
+            <p>Fuel pump relay, fuse, ground, pump module, and ECU enable circuit are all highlighted when this node is selected.</p>
+            <div class="status info">⚡ Fuel pump selected</div>
+          </div>
+          <div class="node-list">
+            <button class="active">Fuel Pump</button>
+            <button>ECU</button>
+            <button>Turbo Actuator</button>
+            <button>Cooling Fan</button>
+          </div>
+        </div>
+      </section>
+    </div>
+  </body>
+</html>

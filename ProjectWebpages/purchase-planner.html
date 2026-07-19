@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Purchase Planner</title>
+    <link rel="stylesheet" href="project-robin.css" />
+  </head>
+  <body>
+    <div class="page">
+      <header class="hero">
+        <h1>Purchase planner</h1>
+        <p>Set a spend target and the planner will suggest the highest-value next purchases based on the current build state.</p>
+        <div class="nav-links">
+          <a href="projects.html">Project hub</a>
+          <a href="master-parts-database.html">Parts database</a>
+          <a href="engine-manual.html">Engine manual</a>
+        </div>
+      </header>
+
+      <section class="panel">
+        <h2>Budget target</h2>
+        <input id="budgetInput" type="number" value="500" />
+        <div class="stats" style="margin-top: 16px;">
+          <div class="stat"><span>Best next purchases</span><strong id="plannerTotal">$0</strong></div>
+          <div class="stat"><span>Recommended set</span><strong id="plannerCount">0</strong></div>
+        </div>
+        <div id="plannerResults"></div>
+      </section>
+    </div>
+
+    <script>
+      const budgetInput = document.getElementById("budgetInput");
+      const plannerTotal = document.getElementById("plannerTotal");
+      const plannerCount = document.getElementById("plannerCount");
+      const plannerResults = document.getElementById("plannerResults");
+      const candidates = [
+        { name: "Timing Chain", cost: 240, priority: "High" },
+        { name: "Water Pump", cost: 160, priority: "High" },
+        { name: "Front Main Seal", cost: 87, priority: "High" },
+        { name: "Engine Mounts", cost: 320, priority: "Medium" },
+        { name: "Intercooler Piping", cost: 180, priority: "Medium" }
+      ];
+
+      function renderPlanner() {
+        const budget = Number(budgetInput.value || 0);
+        const selected = [];
+        let total = 0;
+
+        candidates.forEach((item) => {
+          if (total + item.cost <= budget) {
+            selected.push(item);
+            total += item.cost;
+          }
+        });
+
+        plannerTotal.textContent = `$${total}`;
+        plannerCount.textContent = selected.length;
+        plannerResults.innerHTML = selected.length ? selected.map((item) => `
+          <div class="list-card"><h4>✓ ${item.name}</h4><p>${item.priority} priority • Estimated cost: $${item.cost}</p></div>
+        `).join("") : '<div class="list-card"><h4>No purchases fit the budget yet</h4><p>Try a higher target or reorder the planner priorities.</p></div>';
+      }
+
+      budgetInput.addEventListener("input", renderPlanner);
+      renderPlanner();
+    </script>
+  </body>
+</html>
