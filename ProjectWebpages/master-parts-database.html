@@ -31,6 +31,7 @@
               <option value="100">100 parts</option>
             </select>
           </label>
+          <button class="add-part-btn" type="button" id="openAddPartModal">Add new parts</button>
         </div>
         <div class="stats" style="margin-top: 16px;">
           <div class="stat">
@@ -60,6 +61,63 @@
       ]
     </script>
 
+    <div class="modal-backdrop" id="addPartModal">
+      <div class="modal-card">
+        <h3>Add a new part</h3>
+        <form id="addPartForm">
+          <div class="form-grid">
+            <label class="full">
+              Part name
+              <input name="name" required />
+            </label>
+            <label>
+              OEM PN
+              <input name="pn" required />
+            </label>
+            <label>
+              Brand
+              <input name="brand" required />
+            </label>
+            <label>
+              Subsystem
+              <input name="subsystem" required />
+            </label>
+            <label>
+              Price
+              <input name="price" type="number" min="0" step="0.01" required />
+            </label>
+            <label>
+              Installed
+              <select name="installed">
+                <option value="true">Yes</option>
+                <option value="false">No</option>
+              </select>
+            </label>
+            <label>
+              Mileage
+              <input name="mileage" type="number" min="0" step="1" />
+            </label>
+            <label>
+              Torque
+              <input name="torque" />
+            </label>
+            <label>
+              Last changed
+              <input name="lastChanged" />
+            </label>
+            <label class="full">
+              Replacement
+              <input name="replacement" />
+            </label>
+          </div>
+          <div class="form-actions">
+            <button type="button" id="closeAddPartModal">Cancel</button>
+            <button class="submit-btn" type="submit">Save part</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <script>
       const partsData = document.getElementById("project-robin-parts-data");
       const parts = JSON.parse(partsData.textContent);
@@ -71,6 +129,10 @@
       const resultCount = document.getElementById("resultCount");
       const installedCount = document.getElementById("installedCount");
       const openCount = document.getElementById("openCount");
+      const openAddPartModal = document.getElementById("openAddPartModal");
+      const closeAddPartModal = document.getElementById("closeAddPartModal");
+      const addPartModal = document.getElementById("addPartModal");
+      const addPartForm = document.getElementById("addPartForm");
 
       function render() {
         const query = searchInput.value.toLowerCase();
@@ -100,6 +162,37 @@
           </div>
         `).join("")}`;
       }
+
+      openAddPartModal.addEventListener("click", () => addPartModal.classList.add("open"));
+      closeAddPartModal.addEventListener("click", () => addPartModal.classList.remove("open"));
+      addPartModal.addEventListener("click", (event) => {
+        if (event.target === addPartModal) {
+          addPartModal.classList.remove("open");
+        }
+      });
+
+      addPartForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const formData = new FormData(addPartForm);
+        const newPart = {
+          name: formData.get("name"),
+          pn: formData.get("pn"),
+          brand: formData.get("brand"),
+          subsystem: formData.get("subsystem"),
+          price: Number(formData.get("price") || 0),
+          installed: formData.get("installed") === "true",
+          mileage: Number(formData.get("mileage") || 0),
+          torque: formData.get("torque") || "—",
+          lastChanged: formData.get("lastChanged") || "Not recorded",
+          replacement: formData.get("replacement") || "Not set"
+        };
+
+        parts.push(newPart);
+        window.projectRobinParts = parts;
+        addPartForm.reset();
+        addPartModal.classList.remove("open");
+        render();
+      });
 
       searchInput.addEventListener("input", render);
       displayCount.addEventListener("change", render);
