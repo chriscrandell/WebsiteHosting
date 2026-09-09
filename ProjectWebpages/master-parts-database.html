@@ -18,20 +18,27 @@
         </div>
       </header>
 
+      <div class="note warn">
+        Torque values and OEM part numbers are marked <strong>TBD</strong> until confirmed against the factory
+        service manual (WIS/EPC) or a specific part's install instructions — nothing here is a substitute for that.
+        Cost figures marked <strong>(est.)</strong> are planning-stage guesses, not real quotes.
+      </div>
+
       <section class="panel">
         <h2>Search parts</h2>
-        <input id="searchInput" placeholder="Search for oil filter, timing chain, turbo, sensor..." />
+        <input id="searchInput" placeholder="Search for turbo, suspension, wheels, ECU..." />
         <div class="controls-row">
           <label>
             Display
             <select id="displayCount">
               <option value="10">10 parts</option>
-              <option value="25">25 parts</option>
+              <option value="25" selected>25 parts</option>
               <option value="50">50 parts</option>
               <option value="100">100 parts</option>
             </select>
           </label>
-          <button class="add-part-btn" type="button" id="openAddPartModal">Add new parts</button>
+          <button class="add-part-btn" type="button" id="openAddPartModal">Add new part</button>
+          <button class="add-part-btn" type="button" id="resetSeedBtn" style="border-color: var(--danger); background: rgba(255,107,107,0.1);">Reset to starter list</button>
         </div>
         <div class="stats" style="margin-top: 16px;">
           <div class="stat">
@@ -51,16 +58,6 @@
       </section>
     </div>
 
-    <script type="application/json" id="project-robin-parts-data">
-      [
-        { "name": "Oil Filter", "pn": "A0001802008", "brand": "Mahle", "price": 18, "installed": true, "mileage": 132422, "torque": "25 Nm", "lastChanged": "12/15/2028", "replacement": "Every oil change", "subsystem": "Lubrication" },
-        { "name": "Timing Chain", "pn": "11253-2JZ", "brand": "INA", "price": 240, "installed": false, "mileage": 0, "torque": "88 Nm", "lastChanged": "Not installed", "replacement": "At overhaul", "subsystem": "Timing" },
-        { "name": "Water Pump", "pn": "16100-2JZ", "brand": "Aisin", "price": 160, "installed": false, "mileage": 0, "torque": "20 Nm", "lastChanged": "Pending", "replacement": "As needed", "subsystem": "Cooling" },
-        { "name": "Turbocharger", "pn": "17201-2JZ", "brand": "Precision Turbo", "price": 1450, "installed": true, "mileage": 6500, "torque": "32 Nm", "lastChanged": "02/04/2026", "replacement": "Inspect every 12 months", "subsystem": "Turbo" },
-        { "name": "Fuel Pump", "pn": "7700107", "brand": "Bosch", "price": 220, "installed": true, "mileage": 8100, "torque": "8 Nm", "lastChanged": "03/10/2026", "replacement": "Every 80k", "subsystem": "Fuel" }
-      ]
-    </script>
-
     <div class="modal-backdrop" id="addPartModal">
       <div class="modal-card">
         <h3>Add a new part</h3>
@@ -72,26 +69,32 @@
             </label>
             <label>
               OEM PN
-              <input name="pn" required />
+              <input name="pn" placeholder="TBD if unknown" />
             </label>
             <label>
               Brand
-              <input name="brand" required />
+              <input name="brand" placeholder="TBD if unknown" />
             </label>
             <label>
               Subsystem
               <input name="subsystem" required />
             </label>
             <label>
-              Price
-              <input name="price" type="number" min="0" step="0.01" required />
+              Status
+              <select name="status">
+                <option value="needed">Needed</option>
+                <option value="ordered">Ordered</option>
+                <option value="purchased">Purchased</option>
+                <option value="installed">Installed</option>
+              </select>
             </label>
             <label>
-              Installed
-              <select name="installed">
-                <option value="true">Yes</option>
-                <option value="false">No</option>
-              </select>
+              Estimated cost
+              <input name="estCost" type="number" min="0" step="0.01" />
+            </label>
+            <label>
+              Actual cost (leave blank until purchased)
+              <input name="actualCost" type="number" min="0" step="0.01" />
             </label>
             <label>
               Mileage
@@ -99,15 +102,19 @@
             </label>
             <label>
               Torque
-              <input name="torque" />
+              <input name="torque" placeholder="TBD — verify factory manual" />
             </label>
             <label>
               Last changed
-              <input name="lastChanged" />
+              <input name="lastChanged" placeholder="Not installed" />
             </label>
             <label class="full">
-              Replacement
-              <input name="replacement" />
+              Replacement interval
+              <input name="replacement" placeholder="Not set" />
+            </label>
+            <label class="full">
+              Notes
+              <input name="notes" />
             </label>
           </div>
           <div class="form-actions">
@@ -118,11 +125,9 @@
       </div>
     </div>
 
+    <script src="data/parts.js"></script>
+    <script src="app.js"></script>
     <script>
-      const partsData = document.getElementById("project-robin-parts-data");
-      const parts = JSON.parse(partsData.textContent);
-      window.projectRobinParts = parts;
-
       const results = document.getElementById("results");
       const searchInput = document.getElementById("searchInput");
       const displayCount = document.getElementById("displayCount");
@@ -133,34 +138,49 @@
       const closeAddPartModal = document.getElementById("closeAddPartModal");
       const addPartModal = document.getElementById("addPartModal");
       const addPartForm = document.getElementById("addPartForm");
+      const resetSeedBtn = document.getElementById("resetSeedBtn");
 
       function render() {
+        const parts = RobinApp.loadParts();
         const query = searchInput.value.toLowerCase();
-        const filtered = parts.filter((part) => [part.name, part.pn, part.brand, part.subsystem, part.replacement].join(" ").toLowerCase().includes(query));
+        const filtered = parts.filter((part) =>
+          [part.name, part.pn, part.brand, part.subsystem, part.replacement, part.notes]
+            .join(" ")
+            .toLowerCase()
+            .includes(query)
+        );
         const visibleCount = Number(displayCount.value);
         const visibleParts = filtered.slice(0, visibleCount);
 
         resultCount.textContent = filtered.length;
-        installedCount.textContent = filtered.filter((part) => part.installed).length;
-        openCount.textContent = filtered.filter((part) => !part.installed).length;
+        installedCount.textContent = filtered.filter((part) => part.status === "installed").length;
+        openCount.textContent = filtered.filter((part) => part.status !== "installed").length;
 
         if (!filtered.length) {
-          results.innerHTML = '<div class="list-card"><h4>No matches yet</h4><p>Try another keyword such as oil, turbo, chain, or pump.</p></div>';
+          results.innerHTML = '<div class="list-card"><h4>No matches yet</h4><p>Try another keyword such as turbo, suspension, wheels, or ECU.</p></div>';
           return;
         }
 
         const summary = filtered.length > visibleCount ? `<p style="margin-bottom: 12px; color: var(--accent);">Showing first ${visibleCount} of ${filtered.length} matches.</p>` : "";
 
-        results.innerHTML = `${summary}${visibleParts.map((part) => `
+        results.innerHTML = `${summary}${visibleParts
+          .map((part) => {
+            const costLine = part.actualCost != null
+              ? `<strong>Actual cost:</strong> ${RobinApp.formatMoney(part.actualCost)}`
+              : `<strong>Estimated cost:</strong> ${RobinApp.formatMoney(part.estCost)}${part.estCost != null ? " (est.)" : ""}`;
+            return `
           <div class="list-card">
-            <h4>${part.name}</h4>
-            <p><strong>OEM PN:</strong> ${part.pn}</p>
-            <p><strong>Brand:</strong> ${part.brand} • <strong>Price:</strong> $${part.price}</p>
-            <p><strong>Installed:</strong> ${part.installed ? "Yes" : "No"} • <strong>Mileage:</strong> ${part.mileage.toLocaleString()}</p>
+            <h4>${part.name} ${RobinApp.statusPillHtml(part.status)}</h4>
+            <p><strong>OEM PN:</strong> ${part.pn} • <strong>Brand:</strong> ${part.brand}</p>
+            <p>${costLine} • <strong>Mileage:</strong> ${part.mileage != null ? part.mileage.toLocaleString() : "—"}</p>
             <p><strong>Torque:</strong> ${part.torque} • <strong>Last changed:</strong> ${part.lastChanged}</p>
             <p><strong>Replacement:</strong> ${part.replacement}</p>
+            ${part.notes ? `<p><strong>Notes:</strong> ${part.notes}</p>` : ""}
+            <p><a href="part-detail.html?part=${encodeURIComponent(part.id)}">Open part detail →</a></p>
           </div>
-        `).join("")}`;
+        `;
+          })
+          .join("")}`;
       }
 
       openAddPartModal.addEventListener("click", () => addPartModal.classList.add("open"));
@@ -174,24 +194,30 @@
       addPartForm.addEventListener("submit", (event) => {
         event.preventDefault();
         const formData = new FormData(addPartForm);
-        const newPart = {
+        RobinApp.addPart({
           name: formData.get("name"),
           pn: formData.get("pn"),
           brand: formData.get("brand"),
           subsystem: formData.get("subsystem"),
-          price: Number(formData.get("price") || 0),
-          installed: formData.get("installed") === "true",
-          mileage: Number(formData.get("mileage") || 0),
-          torque: formData.get("torque") || "—",
-          lastChanged: formData.get("lastChanged") || "Not recorded",
-          replacement: formData.get("replacement") || "Not set"
-        };
-
-        parts.push(newPart);
-        window.projectRobinParts = parts;
+          status: formData.get("status"),
+          estCost: formData.get("estCost") || null,
+          actualCost: formData.get("actualCost") || null,
+          mileage: formData.get("mileage") || null,
+          torque: formData.get("torque"),
+          lastChanged: formData.get("lastChanged"),
+          replacement: formData.get("replacement"),
+          notes: formData.get("notes")
+        });
         addPartForm.reset();
         addPartModal.classList.remove("open");
         render();
+      });
+
+      resetSeedBtn.addEventListener("click", () => {
+        if (confirm("Reset the parts list back to the starter data? This clears any parts or edits you've added.")) {
+          RobinApp.resetPartsToSeed();
+          render();
+        }
       });
 
       searchInput.addEventListener("input", render);

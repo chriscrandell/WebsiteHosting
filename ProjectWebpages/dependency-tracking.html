@@ -10,7 +10,7 @@
     <div class="page">
       <header class="hero">
         <h1>Dependency tracking</h1>
-        <p>Install actions can be checked against the surrounding parts, wiring, and configuration before assembly begins.</p>
+        <p>Install actions get checked against the surrounding parts, wiring, and configuration before assembly begins. These checklists read live from the parts database — update a part's status there and the checks here update automatically.</p>
         <div class="nav-links">
           <a href="projects.html">Project hub</a>
           <a href="purchase-planner.html">Purchase planner</a>
@@ -18,15 +18,18 @@
         </div>
       </header>
 
-      <section class="panel">
-        <h2>Install turbo</h2>
-        <div class="alert-list">
-          <div class="alert-item"><strong>❌ Oil feed missing</strong><span>The oil feed line and filter adapter are still incomplete.</span></div>
-          <div class="alert-item"><strong>❌ Wastegate missing</strong><span>The actuator and boost control hardware are not yet installed.</span></div>
-          <div class="alert-item"><strong>❌ ECU not configured</strong><span>Mapping and harness validation still need to be completed.</span></div>
-          <div class="alert-item"><strong>❌ Downpipe incomplete</strong><span>The exhaust path is not ready for the final connection.</span></div>
-        </div>
-      </section>
+      <section class="panel" id="dependencyPanels"></section>
     </div>
+
+    <script src="data/parts.js"></script>
+    <script src="data/dependencies.js"></script>
+    <script src="app.js"></script>
+    <script>
+      const parts = RobinApp.loadParts();
+      const panels = document.getElementById("dependencyPanels");
+      panels.innerHTML = window.ROBIN_DEPENDENCIES
+        .map((rule) => `<div class="panel" style="margin-bottom: 18px;">${RobinApp.dependencyChecklistHtml(rule, parts)}</div>`)
+        .join("");
+    </script>
   </body>
 </html>

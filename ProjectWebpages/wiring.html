@@ -10,7 +10,7 @@
     <div class="page">
       <header class="hero">
         <h1>Interactive wiring map</h1>
-        <p>Click a component to reveal its connected circuits, sensors, and installation dependencies.</p>
+        <p>Click a component to see its connected circuits, sensors, and installation dependencies. This is a scaffold — as you actually trace and document the M104/standalone-ECU wiring on the real car, replace each note below with the real circuit and drop a diagram image into a <code>/diagrams</code> folder next to this site.</p>
         <div class="nav-links">
           <a href="projects.html">Project hub</a>
           <a href="torque-specs.html">Torque specs</a>
@@ -21,18 +21,61 @@
       <section class="panel">
         <div class="wiring-grid">
           <div class="panel" style="margin-bottom: 0;">
-            <h3>Fuel pump circuit</h3>
-            <p>Fuel pump relay, fuse, ground, pump module, and ECU enable circuit are all highlighted when this node is selected.</p>
-            <div class="status info">⚡ Fuel pump selected</div>
+            <h3 id="nodeTitle">Fuel Pump</h3>
+            <p id="nodeDesc">Fuel pump relay, fuse, ground, pump module, and ECU enable circuit are all highlighted when this node is selected. Not yet traced/documented on the real harness — treat this as a placeholder.</p>
+            <div class="status info" id="nodeStatus">⚡ Fuel pump selected</div>
+            <div class="diagram-slot" style="margin-top: 14px;" id="nodeDiagram">📐 No diagram yet for this circuit.</div>
           </div>
-          <div class="node-list">
-            <button class="active">Fuel Pump</button>
-            <button>ECU</button>
-            <button>Turbo Actuator</button>
-            <button>Cooling Fan</button>
-          </div>
+          <div class="node-list" id="nodeList"></div>
         </div>
       </section>
     </div>
+
+    <script>
+      const nodes = [
+        {
+          name: "Fuel Pump",
+          desc: "Fuel pump relay, fuse, ground, pump module, and ECU enable circuit.",
+          status: "⚡ Fuel pump selected"
+        },
+        {
+          name: "ECU",
+          desc: "Standalone ECU power, ground, CAN/sensor inputs, and injector/ignition outputs.",
+          status: "⚡ ECU selected"
+        },
+        {
+          name: "Turbo Actuator",
+          desc: "Wastegate actuator control and boost solenoid wiring.",
+          status: "⚡ Turbo actuator selected"
+        },
+        {
+          name: "Cooling Fan",
+          desc: "Fan relay, temperature switch/sensor input, and fuse circuit.",
+          status: "⚡ Cooling fan selected"
+        },
+        {
+          name: "Air Cup Compressor",
+          desc: "Ride-height compressor relay, pressure switch, and manual control wiring.",
+          status: "⚡ Air cup compressor selected"
+        }
+      ];
+
+      const nodeList = document.getElementById("nodeList");
+      const nodeTitle = document.getElementById("nodeTitle");
+      const nodeDesc = document.getElementById("nodeDesc");
+      const nodeStatus = document.getElementById("nodeStatus");
+
+      function selectNode(index) {
+        const node = nodes[index];
+        nodeTitle.textContent = node.name;
+        nodeDesc.textContent = node.desc + " Not yet traced/documented on the real harness — treat this as a placeholder.";
+        nodeStatus.textContent = node.status;
+        nodeList.querySelectorAll("button").forEach((btn, i) => btn.classList.toggle("active", i === index));
+      }
+
+      nodeList.innerHTML = nodes.map((n) => `<button type="button">${n.name}</button>`).join("");
+      nodeList.querySelectorAll("button").forEach((btn, i) => btn.addEventListener("click", () => selectNode(i)));
+      selectNode(0);
+    </script>
   </body>
 </html>

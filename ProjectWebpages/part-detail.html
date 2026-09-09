@@ -3,14 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Timing Chain Detail</title>
+    <title>Part Detail</title>
     <link rel="stylesheet" href="project-robin.css" />
   </head>
   <body>
     <div class="page">
       <header class="hero">
-        <h1>Timing chain</h1>
-        <p>Every part gets its own profile with sourcing notes, install guidance, torque requirements, and build photos.</p>
+        <h1 id="partTitle">Part detail</h1>
+        <p id="partSubtitle">Every key component can get its own profile: sourcing notes, install guidance, torque requirements, and a wiring/build diagram once you've documented it.</p>
         <div class="nav-links">
           <a href="projects.html">Project hub</a>
           <a href="engine-manual.html">Engine manual</a>
@@ -18,39 +18,109 @@
         </div>
       </header>
 
-      <section class="panel">
-        <div class="stats">
-          <div class="stat"><span>OEM number</span><strong>11253-2JZ</strong></div>
-          <div class="stat"><span>Preferred brand</span><strong>INA</strong></div>
-          <div class="stat"><span>Estimated time</span><strong>4.5 hrs</strong></div>
-          <div class="stat"><span>Difficulty</span><strong>Moderate</strong></div>
-        </div>
-
-        <div class="grid">
-          <div class="card">
-            <h3>Alternatives</h3>
-            <p>OEM Toyota, Gates, and ContiTech are the most likely substitutes if INA is unavailable.</p>
-          </div>
-          <div class="card">
-            <h3>Torque specs</h3>
-            <p>Cam sprocket bolts: 88 Nm. Front cover fasteners: 10 Nm in sequence.</p>
-          </div>
-          <div class="card">
-            <h3>Tools required</h3>
-            <p>Cam locking tool, chain tensioner compressor, timing pin, breaker bar, and torque wrench.</p>
-          </div>
-          <div class="card">
-            <h3>Install procedure</h3>
-            <p>Verify crank and cam alignment, install chain with timing marks, set tensioner, and verify slack before final torque.</p>
-          </div>
-        </div>
-
-        <div class="panel" style="margin-bottom: 0;">
-          <h3>Build notes</h3>
-          <p>Photos from the build should be attached here after install, with notes about chain wear, tensioner condition, and any alignment issues that were discovered during assembly.</p>
-          <div class="status good">✓ Recommended for the next build phase</div>
-        </div>
-      </section>
+      <div id="partContent"></div>
     </div>
+
+    <script src="data/parts.js"></script>
+    <script src="data/part-details.js"></script>
+    <script src="app.js"></script>
+    <script>
+      const params = new URLSearchParams(window.location.search);
+      const partId = params.get("part");
+      const parts = RobinApp.loadParts();
+      const part = partId ? RobinApp.findPart(parts, partId) : null;
+      const detail = partId && window.ROBIN_PART_DETAILS ? window.ROBIN_PART_DETAILS[partId] : null;
+
+      const partTitle = document.getElementById("partTitle");
+      const partSubtitle = document.getElementById("partSubtitle");
+      const partContent = document.getElementById("partContent");
+
+      function renderDiagram(diagram) {
+        if (diagram && diagram.status === "ready" && diagram.src) {
+          return `<div class="diagram-slot"><img src="${diagram.src}" alt="Diagram for ${part.name}" />${diagram.note ? `<p style="margin-top:10px;">${diagram.note}</p>` : ""}</div>`;
+        }
+        if (diagram && diagram.status === "planned") {
+          return `<div class="diagram-slot">📐 Diagram planned — not drawn up yet.${diagram.note ? `<p style="margin-top:10px;">${diagram.note}</p>` : ""}</div>`;
+        }
+        return `<div class="diagram-slot">📐 No diagram yet. Once you've documented the wiring/routing for this part, drop an image or SVG next to this site (e.g. a <code>/diagrams</code> folder) and add a <code>diagram</code> entry for <code>${partId || "this part"}</code> in <code>data/part-details.js</code> — it'll show up here automatically.</div>`;
+      }
+
+      if (!part) {
+        partTitle.textContent = "No part selected";
+        partSubtitle.textContent = "Open this page from the parts database or project hub to see a specific part's detail.";
+        partContent.innerHTML = `<section class="panel"><p>Try the <a href="master-parts-database.html">master parts database</a> and click "Open part detail" on any entry.</p></section>`;
+      } else {
+        partTitle.textContent = part.name;
+        partSubtitle.textContent = `${part.subsystem} • ${RobinApp.STATUS_META[part.status].label}`;
+
+        const statsHtml = `
+          <div class="stats">
+            <div class="stat"><span>OEM number</span><strong>${part.pn}</strong></div>
+            <div class="stat"><span>Brand</span><strong>${part.brand}</strong></div>
+            <div class="stat"><span>Status</span><strong>${RobinApp.statusPillHtml(part.status)}</strong></div>
+            <div class="stat"><span>Cost</span><strong>${part.actualCost != null ? RobinApp.formatMoney(part.actualCost) : `${RobinApp.formatMoney(part.estCost)}${part.estCost != null ? " (est.)" : ""}`}</strong></div>
+          </div>
+        `;
+
+        if (detail) {
+          partContent.innerHTML = `
+            <section class="panel">
+              ${statsHtml}
+              <p>${detail.overview || ""}</p>
+              <div class="grid">
+                <div class="card">
+                  <h3>Difficulty / time</h3>
+                  <p>${detail.difficulty || "TBD"} • Estimated time: ${detail.estHours || "TBD"}</p>
+                </div>
+                <div class="card">
+                  <h3>Tools required</h3>
+                  <p>${(detail.tools || []).join(", ") || "TBD"}</p>
+                </div>
+                <div class="card">
+                  <h3>Torque specs</h3>
+                  <p>${detail.torqueNotes || "TBD — verify factory manual"}</p>
+                </div>
+                <div class="card">
+                  <h3>Alternatives considered</h3>
+                  <p>${detail.alternatives || "None recorded."}</p>
+                </div>
+              </div>
+              <div class="panel" style="margin-bottom: 0;">
+                <h3>Install procedure</h3>
+                ${
+                  (detail.procedure || []).length
+                    ? `<ol>${detail.procedure.map((step) => `<li style="color: var(--muted); margin-bottom: 6px;">${step}</li>`).join("")}</ol>`
+                    : "<p>Not written up yet.</p>"
+                }
+              </div>
+            </section>
+            <section class="panel">
+              <h3>Wiring / build diagram</h3>
+              ${renderDiagram(detail.diagram)}
+            </section>
+            <section class="panel" style="margin-bottom: 0;">
+              <h3>Build notes</h3>
+              <p>${detail.buildNotes || "Nothing logged yet — add notes here (or in the build log) once this part goes in, including any wear, fitment, or alignment issues discovered during install."}</p>
+              ${part.notes ? `<div class="status good">Part note: ${part.notes}</div>` : ""}
+            </section>
+          `;
+        } else {
+          partContent.innerHTML = `
+            <section class="panel">
+              ${statsHtml}
+              <p>${part.notes || "No extended write-up for this part yet."}</p>
+            </section>
+            <section class="panel">
+              <h3>Wiring / build diagram</h3>
+              ${renderDiagram(null)}
+            </section>
+            <section class="panel" style="margin-bottom: 0;">
+              <h3>Add a write-up</h3>
+              <p>This part doesn't have torque specs, tools, or a procedure documented yet. Add an entry keyed <code>"${partId}"</code> to <code>data/part-details.js</code> and it will appear here automatically — no new HTML file needed.</p>
+            </section>
+          `;
+        }
+      }
+    </script>
   </body>
 </html>

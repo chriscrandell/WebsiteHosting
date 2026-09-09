@@ -10,7 +10,7 @@
     <div class="page">
       <header class="hero">
         <h1>VIN and serial database</h1>
-        <p>Store the serial history of the engine, transmission, ECU, injectors, and other key components in one place.</p>
+        <p>Store the serial history of the chassis, donor engine, transmission, ECU, and other key components in one place.</p>
         <div class="nav-links">
           <a href="projects.html">Project hub</a>
           <a href="photo-gallery.html">Photo gallery</a>
@@ -18,16 +18,73 @@
         </div>
       </header>
 
+      <div class="note">
+        Every field below starts blank — nothing here is a placeholder VIN or serial. Fill in real numbers as parts are
+        sourced and installed. This data only lives in this browser's local storage; it isn't sent anywhere.
+      </div>
+
       <section class="panel">
-        <div class="grid">
-          <div class="card"><h3>Engine VIN</h3><p>2JZ-GE-XXXX-001</p></div>
-          <div class="card"><h3>Transmission serial</h3><p>TR6060-5521</p></div>
-          <div class="card"><h3>Turbo serial</h3><p>PT-17201-2JZ</p></div>
-          <div class="card"><h3>ECU serial</h3><p>AEM-EMS-0148</p></div>
-          <div class="card"><h3>Injector serials</h3><p>INJ-01 / INJ-02 / INJ-03 / INJ-04</p></div>
-          <div class="card"><h3>Notes</h3><p>Every part receives a serial reference, installed date, and service history.</p></div>
-        </div>
+        <form id="vinForm" class="form-grid">
+          <label>Chassis VIN (190E/W201)<input name="chassis" /></label>
+          <label>Donor engine serial (M104, W210)<input name="engine" /></label>
+          <label>Transmission serial<input name="transmission" /></label>
+          <label>Turbo serial<input name="turbo" /></label>
+          <label>ECU serial<input name="ecu" /></label>
+          <label>Injector serials<input name="injectors" /></label>
+          <label class="full">Notes<input name="notes" /></label>
+          <div class="form-actions full">
+            <button class="submit-btn" type="submit">Save</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="panel">
+        <div class="grid" id="vinGrid"></div>
       </section>
     </div>
+
+    <script>
+      const KEY = "robinVinData";
+      const fields = [
+        { key: "chassis", label: "Chassis VIN" },
+        { key: "engine", label: "Donor engine serial" },
+        { key: "transmission", label: "Transmission serial" },
+        { key: "turbo", label: "Turbo serial" },
+        { key: "ecu", label: "ECU serial" },
+        { key: "injectors", label: "Injector serials" },
+        { key: "notes", label: "Notes" }
+      ];
+
+      const form = document.getElementById("vinForm");
+      const vinGrid = document.getElementById("vinGrid");
+
+      function load() {
+        try {
+          const raw = localStorage.getItem(KEY);
+          if (raw) return JSON.parse(raw);
+        } catch (err) {
+          console.warn("Could not read saved VIN data:", err);
+        }
+        return {};
+      }
+
+      function render() {
+        const data = load();
+        fields.forEach((f) => { form[f.key].value = data[f.key] || ""; });
+        vinGrid.innerHTML = fields
+          .map((f) => `<div class="card"><h3>${f.label}</h3><p>${data[f.key] || "Not recorded yet"}</p></div>`)
+          .join("");
+      }
+
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const data = {};
+        fields.forEach((f) => { data[f.key] = form[f.key].value; });
+        localStorage.setItem(KEY, JSON.stringify(data));
+        render();
+      });
+
+      render();
+    </script>
   </body>
 </html>

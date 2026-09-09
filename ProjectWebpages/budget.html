@@ -10,7 +10,7 @@
     <div class="page">
       <header class="hero">
         <h1>Budget dashboard</h1>
-        <p>Charts and costing views make the procurement side of the build feel as intentional as the engineering side.</p>
+        <p>Charts and costing views make the procurement side of the build feel as intentional as the engineering side. Figures here are computed live from the parts database — actual cost where you've recorded it, estimates otherwise.</p>
         <div class="nav-links">
           <a href="projects.html">Project hub</a>
           <a href="build-log.html">Build log</a>
@@ -19,17 +19,87 @@
       </header>
 
       <section class="panel">
-        <div class="stats">
-          <div class="stat"><span>Total spent</span><strong>$12,450</strong></div>
-          <div class="stat"><span>Remaining budget</span><strong>$29,550</strong></div>
-          <div class="stat"><span>Projected completion</span><strong>72%</strong></div>
-        </div>
-        <div class="grid">
-          <div class="card"><h3>Subsystem costs</h3><p>Powertrain: $5,600 • Fabrication: $2,100 • Electronics: $1,800 • Interior: $2,800.</p></div>
-          <div class="card"><h3>Monthly spending</h3><p>Current pacing is approximately $1,500 per month with a manageable reserve.</p></div>
-          <div class="card"><h3>Remaining costs</h3><p>Timing, mounts, cooling, and the remaining exhaust hardware still need to be sourced.</p></div>
+        <h2>Your numbers</h2>
+        <div class="form-grid">
+          <label>
+            Total budget target ($, optional)
+            <input id="budgetTargetInput" type="number" min="0" step="1" placeholder="Set your own — nothing is assumed" />
+          </label>
+          <label>
+            Build start date (optional, for pacing)
+            <input id="startDateInput" type="date" />
+          </label>
         </div>
       </section>
+
+      <section class="panel">
+        <div class="stats" id="statsRow"></div>
+        <div class="grid" id="cardsRow"></div>
+      </section>
     </div>
+
+    <script src="data/parts.js"></script>
+    <script src="app.js"></script>
+    <script>
+      const TARGET_KEY = "robinBudgetTarget";
+      const START_KEY = "robinBuildStart";
+      const budgetTargetInput = document.getElementById("budgetTargetInput");
+      const startDateInput = document.getElementById("startDateInput");
+      const statsRow = document.getElementById("statsRow");
+      const cardsRow = document.getElementById("cardsRow");
+
+      budgetTargetInput.value = localStorage.getItem(TARGET_KEY) || "";
+      startDateInput.value = localStorage.getItem(START_KEY) || "";
+
+      function render() {
+        const parts = RobinApp.loadParts();
+        const spent = parts.reduce((sum, p) => sum + (p.actualCost || 0), 0);
+        const estimatedRemaining = parts
+          .filter((p) => p.actualCost == null)
+          .reduce((sum, p) => sum + (p.estCost || 0), 0);
+        const target = Number(budgetTargetInput.value || 0);
+        const remainingVsTarget = target ? target - spent : null;
+
+        const bySubsystem = {};
+        parts.forEach((p) => {
+          const cost = p.actualCost != null ? p.actualCost : (p.estCost || 0);
+          bySubsystem[p.subsystem] = (bySubsystem[p.subsystem] || 0) + cost;
+        });
+        const subsystemLine = Object.entries(bySubsystem)
+          .sort((a, b) => b[1] - a[1])
+          .map(([name, cost]) => `${name}: $${cost.toLocaleString()}`)
+          .join(" • ");
+
+        let monthlyLine = "Set a build start date above to see pacing.";
+        const startDate = startDateInput.value;
+        if (startDate) {
+          const months = Math.max(1, (Date.now() - new Date(startDate).getTime()) / (1000 * 60 * 60 * 24 * 30.44));
+          monthlyLine = `Averaging about $${Math.round(spent / months).toLocaleString()} / month since ${startDate}.`;
+        }
+
+        statsRow.innerHTML = `
+          <div class="stat"><span>Recorded spend</span><strong>$${spent.toLocaleString()}</strong></div>
+          <div class="stat"><span>Estimated remaining</span><strong>$${estimatedRemaining.toLocaleString()} (est.)</strong></div>
+          <div class="stat"><span>${target ? "Remaining vs. target" : "Target"}</span><strong>${target ? `$${remainingVsTarget.toLocaleString()}` : "Not set"}</strong></div>
+        `;
+
+        cardsRow.innerHTML = `
+          <div class="card"><h3>Subsystem costs</h3><p>${subsystemLine || "No parts recorded yet."} <br><span style="font-size:0.8em;">(actual where recorded, estimate otherwise)</span></p></div>
+          <div class="card"><h3>Monthly pacing</h3><p>${monthlyLine}</p></div>
+          <div class="card"><h3>Remaining costs</h3><p>${parts.filter((p) => p.status === "needed").map((p) => p.name).join(", ") || "Nothing flagged as needed."}</p></div>
+        `;
+      }
+
+      budgetTargetInput.addEventListener("input", () => {
+        localStorage.setItem(TARGET_KEY, budgetTargetInput.value);
+        render();
+      });
+      startDateInput.addEventListener("input", () => {
+        localStorage.setItem(START_KEY, startDateInput.value);
+        render();
+      });
+
+      render();
+    </script>
   </body>
 </html>

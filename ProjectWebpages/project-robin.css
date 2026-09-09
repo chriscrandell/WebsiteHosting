@@ -30,7 +30,10 @@ a:hover { text-decoration: underline; }
   padding: 24px 20px 56px;
 }
 
-.hero, .panel, .card, .list-card {
+/* Some pages use a wider max-width for dense tables/dashboards */
+.page.wide { max-width: 1280px; }
+
+.hero, .panel, .card, .list-card, .stat-card {
   background: var(--panel);
   border: 1px solid var(--border);
   border-radius: 22px;
@@ -55,6 +58,21 @@ a:hover { text-decoration: underline; }
   color: var(--text);
 }
 
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
+}
+.chip {
+  border: 1px solid var(--border);
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.04);
+}
+
 .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 20px; }
 .card { padding: 18px; display: flex; flex-direction: column; gap: 8px; }
 .card h3 { margin: 0; }
@@ -70,6 +88,13 @@ a:hover { text-decoration: underline; }
 .stat strong { display: block; font-size: 1.3rem; margin-top: 6px; }
 .stat span { color: var(--muted); font-size: 0.92rem; }
 
+/* Larger dashboard-style stat cards (hub page) */
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 20px; }
+.stat-card { padding: 16px; min-height: 120px; }
+.stat-label { color: var(--muted); font-size: 0.9rem; margin-bottom: 8px; }
+.stat-value { font-size: 1.6rem; font-weight: 700; }
+.stat-foot { margin-top: 8px; color: var(--accent); font-size: 0.9rem; }
+
 input, select, textarea {
   width: 100%;
   padding: 10px 12px;
@@ -77,10 +102,13 @@ input, select, textarea {
   border: 1px solid var(--border);
   background: rgba(255,255,255,0.06);
   color: var(--text);
+  font-family: inherit;
 }
+select { min-width: 130px; }
 
+.table-wrap { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; }
-th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid rgba(255,255,255,0.08); vertical-align: middle; }
 th { color: var(--muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em; }
 
 .status { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; font-size: 0.84rem; font-weight: 600; }
@@ -88,6 +116,25 @@ th { color: var(--muted); font-size: 0.85rem; text-transform: uppercase; letter-
 .status.warn { background: rgba(255,202,58,0.16); color: #ffd067; }
 .status.danger { background: rgba(255,107,107,0.16); color: #ff9e9e; }
 .status.info { background: rgba(76,201,240,0.15); color: #93dcff; }
+
+/* Status pill variant keyed by build-status string (used by parts tables) */
+.status-pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; font-size: 0.84rem; font-weight: 600; }
+.status-installed { background: rgba(65, 214, 178, 0.16); color: #8ff0d0; }
+.status-purchased { background: rgba(76, 201, 240, 0.15); color: #93dcff; }
+.status-ordered { background: rgba(255, 202, 58, 0.16); color: #ffd067; }
+.status-needed { background: rgba(255, 107, 107, 0.16); color: #ff9e9e; }
+
+.badge-tbd {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: rgba(255, 202, 58, 0.14);
+  color: #ffd067;
+  border: 1px dashed rgba(255, 202, 58, 0.4);
+}
 
 .accordion { display: grid; gap: 10px; }
 .accordion-item { border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 12px 14px; }
@@ -97,111 +144,87 @@ th { color: var(--muted); font-size: 0.85rem; text-transform: uppercase; letter-
 .list-card h4 { margin: 0 0 6px; }
 .list-card p { margin: 0; color: var(--muted); }
 
-.controls-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  align-items: center;
-  margin: 12px 0 16px;
-}
+.controls-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin: 12px 0 16px; }
+.controls-row label { display: flex; align-items: center; gap: 8px; color: var(--muted); }
+.controls-row select { width: auto; min-width: 90px; }
 
-.controls-row label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--muted);
-}
+.results-panel { max-height: 560px; overflow-y: auto; padding-right: 6px; }
+.results-panel::-webkit-scrollbar { width: 8px; }
+.results-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.16); border-radius: 999px; }
 
-.controls-row select {
-  width: auto;
-  min-width: 90px;
-}
-
-.results-panel {
-  max-height: 560px;
-  overflow-y: auto;
-  padding-right: 6px;
-}
-
-.results-panel::-webkit-scrollbar {
-  width: 8px;
-}
-
-.results-panel::-webkit-scrollbar-thumb {
-  background: rgba(255,255,255,0.16);
-  border-radius: 999px;
-}
-
-.add-part-btn {
+.add-part-btn, .primary-btn {
   padding: 10px 14px;
   border-radius: 999px;
   border: 1px solid var(--accent);
   background: rgba(65,214,178,0.14);
   color: var(--text);
   cursor: pointer;
+  font: inherit;
 }
 
-.modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(3, 10, 10, 0.78);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  z-index: 20;
-}
-
+.modal-backdrop { position: fixed; inset: 0; background: rgba(3, 10, 10, 0.78); display: none; align-items: center; justify-content: center; padding: 20px; z-index: 20; }
 .modal-backdrop.open { display: flex; }
 
-.modal-card {
-  width: min(720px, 100%);
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 22px;
-  padding: 20px;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.3);
-}
-
+.modal-card { width: min(720px, 100%); background: var(--panel); border: 1px solid var(--border); border-radius: 22px; padding: 20px; box-shadow: 0 24px 60px rgba(0, 0, 0, 0.3); max-height: 90vh; overflow-y: auto; }
 .modal-card h3 { margin-top: 0; }
 
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-}
-
+.form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 .form-grid .full { grid-column: 1 / -1; }
 
-.form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 16px;
-}
-
-.form-actions button {
-  padding: 10px 14px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  background: rgba(255,255,255,0.06);
-  color: var(--text);
-  cursor: pointer;
-}
-
-.form-actions .submit-btn {
-  border-color: var(--accent);
-  background: rgba(65,214,178,0.16);
-}
+.form-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px; }
+.form-actions button { padding: 10px 14px; border-radius: 10px; border: 1px solid var(--border); background: rgba(255,255,255,0.06); color: var(--text); cursor: pointer; font: inherit; }
+.form-actions .submit-btn { border-color: var(--accent); background: rgba(65,214,178,0.16); }
 
 .wiring-grid { display: grid; grid-template-columns: 1fr 280px; gap: 16px; }
-.node-list button {
-  display: block; width: 100%; text-align: left; margin-bottom: 8px; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border); background: rgba(255,255,255,0.04); color: var(--text);
-}
+.node-list button { display: block; width: 100%; text-align: left; margin-bottom: 8px; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border); background: rgba(255,255,255,0.04); color: var(--text); cursor: pointer; font: inherit; }
 .node-list button.active { border-color: var(--accent); background: rgba(65,214,178,0.12); }
 
 .gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
 .gallery-item { padding: 10px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.04); }
-.gallery-item .photo { height: 130px; border-radius: 12px; background: linear-gradient(135deg, rgba(65,214,178,0.2), rgba(103,168,255,0.2)); display: flex; align-items: center; justify-content: center; font-size: 2rem; margin-bottom: 8px; }
+.gallery-item .photo { height: 130px; border-radius: 12px; background: linear-gradient(135deg, rgba(65,214,178,0.2), rgba(103,168,255,0.2)); display: flex; align-items: center; justify-content: center; font-size: 2rem; margin-bottom: 8px; overflow: hidden; }
+.gallery-item .photo img { width: 100%; height: 100%; object-fit: cover; }
 
-@media (max-width: 760px) { .wiring-grid { grid-template-columns: 1fr; } }
+.diagram-slot {
+  border: 1px dashed rgba(255,255,255,0.18);
+  border-radius: 16px;
+  padding: 22px;
+  text-align: center;
+  color: var(--muted);
+  background: rgba(255,255,255,0.03);
+}
+.diagram-slot img, .diagram-slot svg { max-width: 100%; border-radius: 10px; }
+
+.alert-list { display: grid; gap: 10px; }
+.alert-item { border: 1px solid rgba(255, 255, 255, 0.08); background: rgba(255, 255, 255, 0.04); border-radius: 14px; padding: 12px 14px; }
+.alert-item strong { display: block; margin-bottom: 4px; }
+.alert-item.ok { border-color: rgba(65,214,178,0.3); background: rgba(65,214,178,0.08); }
+
+.calc-form { display: grid; gap: 12px; }
+.calc-form label { display: grid; gap: 6px; color: var(--muted); }
+.calc-results { margin-top: 14px; background: rgba(65, 214, 178, 0.1); border: 1px solid rgba(65, 214, 178, 0.16); border-radius: 14px; padding: 12px 14px; }
+
+.roadmap { display: grid; gap: 12px; }
+.roadmap-card { padding: 14px 16px; border-radius: 16px; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); }
+.roadmap-card strong { display: block; margin-bottom: 6px; }
+
+.grid-2 { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 20px; }
+
+.link-row { margin-top: 14px; }
+.back-link { color: var(--accent); text-decoration: none; }
+
+.note {
+  font-size: 0.85rem;
+  color: var(--muted);
+  border-left: 3px solid var(--accent-2);
+  padding: 8px 12px;
+  background: rgba(103, 168, 255, 0.08);
+  border-radius: 0 10px 10px 0;
+  margin: 10px 0;
+}
+.note.warn { border-left-color: var(--warning); background: rgba(255, 202, 58, 0.08); }
+
+@media (max-width: 760px) {
+  .wiring-grid { grid-template-columns: 1fr; }
+  .grid-2 { grid-template-columns: 1fr; }
+  .form-grid { grid-template-columns: 1fr; }
+}

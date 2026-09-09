@@ -4,284 +4,17 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Project Robin Engineering Database</title>
-    <style>
-      :root {
-        color-scheme: dark;
-        --bg: #07110f;
-        --panel: rgba(10, 24, 24, 0.92);
-        --panel-2: rgba(18, 36, 36, 0.9);
-        --border: rgba(255, 255, 255, 0.12);
-        --text: #eaf6f3;
-        --muted: #8ea7a0;
-        --accent: #41d6b2;
-        --accent-2: #67a8ff;
-        --warning: #ffca3a;
-        --danger: #ff6b6b;
-        --info: #4cc9f0;
-      }
-
-      * {
-        box-sizing: border-box;
-      }
-
-      body {
-        margin: 0;
-        font-family: Inter, "Segoe UI", Roboto, sans-serif;
-        background:
-          radial-gradient(circle at top left, rgba(65, 214, 178, 0.15), transparent 28%),
-          linear-gradient(135deg, #03110d 0%, var(--bg) 100%);
-        color: var(--text);
-      }
-
-      .project-robin-page {
-        max-width: 1280px;
-        margin: 0 auto;
-        padding: 28px 20px 56px;
-      }
-
-      .hero {
-        background: linear-gradient(135deg, rgba(13, 35, 35, 0.95), rgba(8, 20, 20, 0.92));
-        border: 1px solid var(--border);
-        border-radius: 24px;
-        padding: 28px;
-        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.25);
-        margin-bottom: 20px;
-      }
-
-      .hero h1 {
-        margin: 0 0 8px;
-        font-size: clamp(1.8rem, 2.5vw, 2.6rem);
-      }
-
-      .hero p {
-        margin: 0;
-        color: var(--muted);
-        max-width: 760px;
-        line-height: 1.7;
-      }
-
-      .chip-row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        margin-top: 20px;
-      }
-
-      .chip {
-        border: 1px solid var(--border);
-        padding: 8px 12px;
-        border-radius: 999px;
-        font-size: 0.9rem;
-        color: var(--text);
-        background: rgba(255, 255, 255, 0.04);
-      }
-
-      .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-        gap: 14px;
-        margin-bottom: 20px;
-      }
-
-      .stat-card {
-        background: var(--panel);
-        border: 1px solid var(--border);
-        border-radius: 18px;
-        padding: 16px;
-        min-height: 132px;
-      }
-
-      .stat-label {
-        color: var(--muted);
-        font-size: 0.9rem;
-        margin-bottom: 8px;
-      }
-
-      .stat-value {
-        font-size: 1.6rem;
-        font-weight: 700;
-      }
-
-      .stat-foot {
-        margin-top: 8px;
-        color: var(--accent);
-        font-size: 0.9rem;
-      }
-
-      .panel {
-        background: var(--panel);
-        border: 1px solid var(--border);
-        border-radius: 22px;
-        padding: 18px;
-        margin-bottom: 20px;
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
-      }
-
-      .panel h2,
-      .panel h3 {
-        margin: 0 0 8px;
-      }
-
-      .panel p {
-        color: var(--muted);
-        margin-top: 0;
-        line-height: 1.6;
-      }
-
-      .table-wrap {
-        overflow-x: auto;
-      }
-
-      table {
-        width: 100%;
-        border-collapse: collapse;
-      }
-
-      th,
-      td {
-        text-align: left;
-        padding: 12px 8px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-        vertical-align: middle;
-      }
-
-      th {
-        color: var(--muted);
-        font-size: 0.85rem;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-      }
-
-      .status-pill {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        padding: 6px 10px;
-        border-radius: 999px;
-        font-size: 0.84rem;
-        font-weight: 600;
-      }
-
-      .status-installed {
-        background: rgba(65, 214, 178, 0.16);
-        color: #8ff0d0;
-      }
-
-      .status-purchased {
-        background: rgba(76, 201, 240, 0.15);
-        color: #93dcff;
-      }
-
-      .status-ordered {
-        background: rgba(255, 202, 58, 0.16);
-        color: #ffd067;
-      }
-
-      .status-needed {
-        background: rgba(255, 107, 107, 0.16);
-        color: #ff9e9e;
-      }
-
-      select {
-        background: rgba(255, 255, 255, 0.06);
-        color: var(--text);
-        border: 1px solid var(--border);
-        padding: 8px 10px;
-        border-radius: 10px;
-        min-width: 130px;
-      }
-
-      .grid-2 {
-        display: grid;
-        grid-template-columns: 1.05fr 0.95fr;
-        gap: 20px;
-      }
-
-      .alert-list {
-        display: grid;
-        gap: 10px;
-      }
-
-      .alert-item {
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        background: rgba(255, 255, 255, 0.04);
-        border-radius: 14px;
-        padding: 12px 14px;
-      }
-
-      .alert-item strong {
-        display: block;
-        margin-bottom: 4px;
-      }
-
-      .calc-form {
-        display: grid;
-        gap: 12px;
-      }
-
-      .calc-form label {
-        display: grid;
-        gap: 6px;
-        color: var(--muted);
-      }
-
-      .calc-form input {
-        background: rgba(255, 255, 255, 0.06);
-        color: var(--text);
-        border: 1px solid var(--border);
-        padding: 9px 10px;
-        border-radius: 10px;
-      }
-
-      .calc-results {
-        margin-top: 14px;
-        background: rgba(65, 214, 178, 0.1);
-        border: 1px solid rgba(65, 214, 178, 0.16);
-        border-radius: 14px;
-        padding: 12px 14px;
-      }
-
-      .roadmap {
-        display: grid;
-        gap: 12px;
-      }
-
-      .roadmap-card {
-        padding: 14px 16px;
-        border-radius: 16px;
-        background: rgba(255, 255, 255, 0.04);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-      }
-
-      .roadmap-card strong {
-        display: block;
-        margin-bottom: 6px;
-      }
-
-      .link-row {
-        margin-top: 14px;
-      }
-
-      .back-link {
-        color: var(--accent);
-        text-decoration: none;
-      }
-
-      @media (max-width: 760px) {
-        .grid-2 {
-          grid-template-columns: 1fr;
-        }
-      }
-    </style>
+    <link rel="stylesheet" href="project-robin.css" />
   </head>
   <body>
-    <div class="project-robin-page">
+    <div class="page wide">
       <header class="hero">
         <h1>Project Robin engineering database</h1>
         <p>
-          This prototype treats the build like a living engineering package: parts move through
-          a status workflow, the dashboard updates automatically, and dependency warnings help
-          prevent assembly mistakes before they happen.
+          Home base for the 190E build: an M104 3.2L turbo swap into the 1990 W201, built for
+          reliability first and hill climb / autocross second — a daily driver that can be track-ready
+          in minutes. This page tracks parts, budget, dependencies, and build history in one place, for
+          me now and for the kids when they're old enough to turn wrenches on it too.
         </p>
         <div class="chip-row">
           <span class="chip">🟢 Installed</span>
@@ -295,7 +28,7 @@
 
       <section class="panel">
         <h2>Core parts register</h2>
-        <p>Track the current state of the build and let the dashboard update in real time.</p>
+        <p>Track the current state of the build and let the dashboard update in real time. Full detail, search, and add-part tools live on the <a href="master-parts-database.html">parts database</a>.</p>
         <div class="table-wrap">
           <table>
             <thead>
@@ -303,8 +36,8 @@
                 <th>Part</th>
                 <th>Subsystem</th>
                 <th>Status</th>
-                <th>Estimated cost</th>
-                <th>Rating</th>
+                <th>Estimated / actual cost</th>
+                <th>Detail</th>
               </tr>
             </thead>
             <tbody id="parts-table"></tbody>
@@ -315,14 +48,18 @@
       <section class="grid-2">
         <div class="panel">
           <h3>Dependency and assembly checks</h3>
-          <p>Warnings surface when the build enters a phase before the supporting parts are in place.</p>
-          <div class="alert-list" id="dependency-list"></div>
+          <p>Warnings surface when a milestone is attempted before its supporting parts are actually in place. Full checklist on <a href="dependency-tracking.html">Dependency tracking</a>.</p>
+          <div id="dependency-summary"></div>
         </div>
 
         <div class="panel">
           <h3>Weight calculator</h3>
-          <p>Estimate the impact of the next round of parts on curb weight and balance.</p>
+          <p>Estimate the impact of the next round of parts on curb weight and balance. Enter your own measured baseline — nothing here is assumed.</p>
           <form class="calc-form" id="weight-form">
+            <label>
+              Baseline curb weight (lb) — your own measured/spec number
+              <input id="weight-base" type="number" value="" min="0" step="1" placeholder="e.g. from a corner-balance or scale ticket" />
+            </label>
             <label>
               Weight removed (lb)
               <input id="weight-removed" type="number" value="0" min="0" step="1" />
@@ -350,8 +87,8 @@
             A service-manual-style subsystem tree for the long block, timing, cooling, turbo, fuel, and exhaust.
           </div>
           <div class="roadmap-card">
-            <strong><a href="part-detail.html">Part detail page</a></strong>
-            A page for each key component including torque, tools, procedure, alternatives, and notes.
+            <strong><a href="part-detail.html?part=bilstein-b8-air-cups">Part detail page</a></strong>
+            A page per key component: torque, tools, procedure, alternatives, and a diagram slot.
           </div>
           <div class="roadmap-card">
             <strong><a href="purchase-planner.html">Purchase planner</a></strong>
@@ -363,7 +100,7 @@
           </div>
           <div class="roadmap-card">
             <strong><a href="maintenance.html">Maintenance</a></strong>
-            An eventual routine service timeline for oil, transmission, diff, turbo, brakes, and more.
+            Routine service timeline for oil, transmission, diff, turbo, brakes, and more.
           </div>
           <div class="roadmap-card">
             <strong><a href="build-log.html">Build log</a></strong>
@@ -375,7 +112,7 @@
           </div>
           <div class="roadmap-card">
             <strong><a href="wiring.html">Wiring</a></strong>
-            An interactive wiring guide that highlights connected components.
+            An interactive wiring guide, with room to attach real diagrams as you document them.
           </div>
           <div class="roadmap-card">
             <strong><a href="torque-specs.html">Torque specs</a></strong>
@@ -396,119 +133,76 @@
       </section>
     </div>
 
+    <script src="data/parts.js"></script>
+    <script src="data/dependencies.js"></script>
+    <script src="app.js"></script>
     <script>
-      const budgetTarget = 42000;
-      const baseCurbWeight = 3120;
-      const baseFrontBias = 0.52;
-      let parts = [];
-
-      const fallbackParts = [
-        { name: "2JZ-GE long block", subsystem: "Powertrain", status: "installed", cost: 5400, rating: 5, recommendation: "Preferred" },
-        { name: "AEM EMS and harness", subsystem: "Electronics", status: "purchased", cost: 1800, rating: 5, recommendation: "Preferred" },
-        { name: "Weld-in engine mounts", subsystem: "Fabrication", status: "ordered", cost: 1200, rating: 4, recommendation: "Excellent" },
-        { name: "Rear main seal kit", subsystem: "Powertrain", status: "needed", cost: 95, rating: 4, recommendation: "Excellent" },
-        { name: "Timing chain and guides", subsystem: "Powertrain", status: "needed", cost: 320, rating: 4, recommendation: "Excellent" },
-        { name: "Turbo inlet and intercooler piping", subsystem: "Forced induction", status: "purchased", cost: 1450, rating: 5, recommendation: "Preferred" },
-        { name: "Exhaust manifold and downpipe", subsystem: "Exhaust", status: "ordered", cost: 900, rating: 3, recommendation: "Acceptable" },
-        { name: "Billet steering rack mounts", subsystem: "Suspension", status: "needed", cost: 450, rating: 3, recommendation: "Acceptable" },
-        { name: "Recaro seats", subsystem: "Interior", status: "purchased", cost: 2800, rating: 4, recommendation: "Excellent" },
-        { name: "Body kit panels", subsystem: "Body", status: "ordered", cost: 2600, rating: 2, recommendation: "Needs review" }
-      ];
-
-      const statusMeta = {
-        installed: { label: "Installed", className: "status-installed", icon: "🟢" },
-        purchased: { label: "Purchased", className: "status-purchased", icon: "🔵" },
-        ordered: { label: "Ordered", className: "status-ordered", icon: "🟡" },
-        needed: { label: "Needed", className: "status-needed", icon: "🔴" }
-      };
-
       const partsTable = document.getElementById("parts-table");
       const statsGrid = document.getElementById("stats-grid");
-      const dependencyList = document.getElementById("dependency-list");
+      const dependencySummary = document.getElementById("dependency-summary");
       const weightForm = document.getElementById("weight-form");
       const weightResults = document.getElementById("weight-results");
 
-      async function loadParts() {
-        try {
-          const response = await fetch("master-parts-database.html");
-          if (!response.ok) throw new Error("Unable to load parts database");
-
-          const html = await response.text();
-          const match = html.match(/<script type="application\/json" id="project-robin-parts-data">([\s\S]*?)<\/script>/);
-
-          if (match) {
-            parts = JSON.parse(match[1]);
-          } else {
-            throw new Error("Parts data not found");
-          }
-        } catch (error) {
-          console.warn("Falling back to built-in parts data:", error);
-          parts = fallbackParts;
-        }
-
-        renderParts();
-        updateDashboard();
-        updateWeightResults(0, 0);
-      }
-
       function renderParts() {
+        const parts = RobinApp.loadParts();
         partsTable.innerHTML = "";
 
         parts.forEach((part) => {
           const row = document.createElement("tr");
+          const costLabel = part.actualCost != null
+            ? RobinApp.formatMoney(part.actualCost)
+            : `${RobinApp.formatMoney(part.estCost)}${part.estCost != null ? " (est.)" : ""}`;
           row.innerHTML = `
             <td><strong>${part.name}</strong></td>
             <td>${part.subsystem}</td>
             <td>
-              <select data-name="${part.name}">
-                ${Object.entries(statusMeta)
+              <select data-id="${part.id}">
+                ${Object.entries(RobinApp.STATUS_META)
                   .map(([key, meta]) => `<option value="${key}" ${part.status === key ? "selected" : ""}>${meta.icon} ${meta.label}</option>`)
                   .join("")}
               </select>
             </td>
-            <td>$${part.cost.toLocaleString()}</td>
-            <td>${renderRating(part.rating)} ${part.recommendation}</td>
+            <td>${costLabel}</td>
+            <td><a href="part-detail.html?part=${encodeURIComponent(part.id)}">View</a></td>
           `;
           partsTable.appendChild(row);
         });
 
         partsTable.querySelectorAll("select").forEach((select) => {
           select.addEventListener("change", (event) => {
-            const part = parts.find((entry) => entry.name === event.target.dataset.name);
-            if (part) {
-              part.status = event.target.value;
-              updateDashboard();
-            }
+            RobinApp.updatePartStatus(event.target.dataset.id, event.target.value);
+            renderParts();
+            renderDashboard();
           });
         });
       }
 
-      function renderRating(rating) {
-        return "★".repeat(rating) + "☆".repeat(5 - rating);
-      }
+      function renderDashboard() {
+        const parts = RobinApp.loadParts();
+        const installedCount = parts.filter((p) => p.status === "installed").length;
+        const purchasedCount = parts.filter((p) => p.status === "purchased").length;
+        const orderedCount = parts.filter((p) => p.status === "ordered").length;
+        const neededCount = parts.filter((p) => p.status === "needed").length;
 
-      function updateDashboard() {
-        const installedCount = parts.filter((part) => part.status === "installed").length;
-        const purchasedCount = parts.filter((part) => part.status === "purchased").length;
-        const orderedCount = parts.filter((part) => part.status === "ordered").length;
-        const neededCount = parts.filter((part) => part.status === "needed").length;
-        const totalCost = parts.reduce((sum, part) => sum + part.cost, 0);
-        const spent = parts
-          .filter((part) => part.status === "installed" || part.status === "purchased")
-          .reduce((sum, part) => sum + part.cost, 0);
-        const remaining = budgetTarget - spent;
-        const completion = Math.min(100, Math.round(((installedCount * 1.2) + purchasedCount * 0.8 + orderedCount * 0.4) / parts.length * 100));
-        const recommendedPurchase = parts.find((part) => part.status === "needed") || parts[0];
-        const monthlySpend = Math.round(spent / 8);
-        const phase = installedCount >= 4 ? "Assembly integration" : installedCount >= 2 ? "Powertrain prep" : "Planning and sourcing";
+        const spent = parts.reduce((sum, p) => sum + (p.actualCost || 0), 0);
+        const estimatedRemaining = parts
+          .filter((p) => p.actualCost == null)
+          .reduce((sum, p) => sum + (p.estCost || 0), 0);
+
+        const nextPurchase = parts.find((p) => p.status === "needed");
+        const phase = installedCount === 0
+          ? "Planning and sourcing"
+          : installedCount < 4
+            ? "Early install"
+            : "Assembly integration";
 
         const cards = [
-          { label: "Total parts", value: parts.length, foot: "Registered entries" },
-          { label: "Purchased vs installed", value: `${purchasedCount + installedCount}/${parts.length}`, foot: `${installedCount} installed • ${purchasedCount} purchased` },
-          { label: "Budget spent", value: `$${spent.toLocaleString()}`, foot: `Remaining $${remaining.toLocaleString()}` },
-          { label: "Build phase", value: phase, foot: `${orderedCount} ordered • ${neededCount} needed` },
-          { label: "Next purchase", value: recommendedPurchase.name, foot: `${recommendedPurchase.subsystem}` },
-          { label: "Completion", value: `${completion}%`, foot: `Target budget $${budgetTarget.toLocaleString()}` }
+          { label: "Total parts tracked", value: parts.length, foot: "Registered entries" },
+          { label: "Installed / purchased", value: `${installedCount + purchasedCount}/${parts.length}`, foot: `${installedCount} installed • ${purchasedCount} purchased` },
+          { label: "Recorded spend", value: RobinApp.formatMoney(spent || null) === "TBD" ? "$0" : RobinApp.formatMoney(spent), foot: "Actual cost entries only" },
+          { label: "Estimated remaining", value: RobinApp.formatMoney(estimatedRemaining || null) === "TBD" ? "$0 (est.)" : `${RobinApp.formatMoney(estimatedRemaining)} (est.)`, foot: `${orderedCount} ordered • ${neededCount} needed` },
+          { label: "Build phase", value: phase, foot: "Based on current statuses" },
+          { label: "Next suggested purchase", value: nextPurchase ? nextPurchase.name : "Nothing flagged", foot: nextPurchase ? nextPurchase.subsystem : "" }
         ];
 
         statsGrid.innerHTML = cards
@@ -523,53 +217,36 @@
           )
           .join("");
 
-        dependencyList.innerHTML = [
-          {
-            title: "Engine assembly readiness",
-            detail: installedCount >= 2
-              ? "The engine is ready for the next assembly step; timing and seal items still need attention."
-              : "Engine installation is still in planning; confirm the core powertrain package first."
-          },
-          {
-            title: "Mounting and fitment",
-            detail: parts.some((part) => part.status === "ordered" && part.subsystem === "Fabrication")
-              ? "Mounting hardware is on order, so body and drivetrain fitment should be reviewed before weld-up."
-              : "Mounting package is not yet locked in."
-          },
-          {
-            title: "Budget pacing",
-            detail: `Estimated monthly spend is about $${monthlySpend.toLocaleString()}, so this build remains within the planned cadence.`
-          }
-        ].map((item) => `
-          <div class="alert-item">
-            <strong>${item.title}</strong>
-            <span>${item.detail}</span>
-          </div>
-        `).join("");
+        dependencySummary.innerHTML = window.ROBIN_DEPENDENCIES
+          .map((rule) => `<div style="margin-bottom:14px;">${RobinApp.dependencyChecklistHtml(rule, parts)}</div>`)
+          .join("");
       }
 
-      function updateWeightResults(removed, added) {
-        const netWeight = Math.max(0, baseCurbWeight - removed + added);
-        const frontBias = Math.max(0.45, Math.min(0.58, baseFrontBias + (added - removed) / 10000));
-        const rearBias = 1 - frontBias;
+      function updateWeightResults() {
+        const base = Number(document.getElementById("weight-base").value || 0);
+        const removed = Number(document.getElementById("weight-removed").value || 0);
+        const added = Number(document.getElementById("weight-added").value || 0);
+
+        if (!base) {
+          weightResults.innerHTML = `<div>Enter a baseline curb weight to see estimates — this tool won't guess one for you.</div>`;
+          return;
+        }
+
+        const netWeight = Math.max(0, base - removed + added);
         weightResults.innerHTML = `
           <div><strong>Current estimate:</strong> ${netWeight.toLocaleString()} lb</div>
-          <div><strong>Front / rear split:</strong> ${Math.round(frontBias * 100)}% / ${Math.round(rearBias * 100)}%</div>
-          <div><strong>Delta from baseline:</strong> ${((netWeight - baseCurbWeight) > 0 ? "+" : "")}${(netWeight - baseCurbWeight).toFixed(1)} lb</div>
+          <div><strong>Delta from baseline:</strong> ${((netWeight - base) > 0 ? "+" : "")}${(netWeight - base).toFixed(1)} lb</div>
         `;
       }
 
-      weightForm.addEventListener("submit", (event) => {
-        event.preventDefault();
-        const removed = Number(document.getElementById("weight-removed").value || 0);
-        const added = Number(document.getElementById("weight-added").value || 0);
-        updateWeightResults(removed, added);
+      weightForm.addEventListener("submit", (event) => event.preventDefault());
+      ["weight-base", "weight-removed", "weight-added"].forEach((id) => {
+        document.getElementById(id).addEventListener("input", updateWeightResults);
       });
 
-      document.getElementById("weight-removed").addEventListener("input", () => weightForm.requestSubmit());
-      document.getElementById("weight-added").addEventListener("input", () => weightForm.requestSubmit());
-
-      loadParts();
+      renderParts();
+      renderDashboard();
+      updateWeightResults();
     </script>
   </body>
 </html>

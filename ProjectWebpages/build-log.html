@@ -10,7 +10,7 @@
     <div class="page">
       <header class="hero">
         <h1>Build log</h1>
-        <p>Every session becomes a permanent record of what was completed, what went wrong, and how the next steps should be improved.</p>
+        <p>Every session becomes a permanent record of what was completed, what went wrong, and how the next steps should be improved — for future-you, and eventually for the kids working on this car.</p>
         <div class="nav-links">
           <a href="projects.html">Project hub</a>
           <a href="maintenance.html">Maintenance</a>
@@ -19,15 +19,85 @@
       </header>
 
       <section class="panel">
-        <div class="list-card">
-          <h4>July 18</h4>
-          <p><strong>Installed:</strong> Bilstein B8 • <strong>Hours:</strong> 6.5 • <strong>Problems:</strong> one seized bolt • <strong>Solution:</strong> heat and slow soak • <strong>Lessons:</strong> order replacement hardware first.</p>
-        </div>
-        <div class="list-card">
-          <h4>July 12</h4>
-          <p><strong>Installed:</strong> oil filter adapter • <strong>Hours:</strong> 2.0 • <strong>Problems:</strong> cross-threaded fitting • <strong>Solution:</strong> re-tap and replace washer • <strong>Lessons:</strong> inspect threads before torque.</p>
-        </div>
+        <h2>Add an entry</h2>
+        <form id="logForm" class="form-grid">
+          <label>
+            Date
+            <input name="date" type="date" required />
+          </label>
+          <label>
+            Hours spent
+            <input name="hours" type="number" min="0" step="0.5" />
+          </label>
+          <label class="full">
+            What was installed / worked on
+            <input name="installed" required />
+          </label>
+          <label class="full">
+            Problems encountered
+            <input name="problems" placeholder="None" />
+          </label>
+          <label class="full">
+            Solution
+            <input name="solution" />
+          </label>
+          <label class="full">
+            Lessons learned
+            <input name="lessons" />
+          </label>
+          <div class="form-actions full">
+            <button class="submit-btn" type="submit">Save entry</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="panel">
+        <h2>Log</h2>
+        <div id="logList"></div>
       </section>
     </div>
+
+    <script src="app.js"></script>
+    <script>
+      const logForm = document.getElementById("logForm");
+      const logList = document.getElementById("logList");
+
+      function render() {
+        const entries = RobinApp.loadLog();
+        if (!entries.length) {
+          logList.innerHTML = '<div class="list-card"><h4>No entries yet</h4><p>Add your first build session above — it\'ll show up here.</p></div>';
+          return;
+        }
+        logList.innerHTML = entries
+          .map(
+            (entry) => `
+          <div class="list-card">
+            <h4>${entry.date}</h4>
+            <p><strong>Installed:</strong> ${entry.installed} • <strong>Hours:</strong> ${entry.hours || "—"}</p>
+            <p><strong>Problems:</strong> ${entry.problems} • <strong>Solution:</strong> ${entry.solution || "—"}</p>
+            <p><strong>Lessons:</strong> ${entry.lessons || "—"}</p>
+          </div>
+        `
+          )
+          .join("");
+      }
+
+      logForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const formData = new FormData(logForm);
+        RobinApp.addLogEntry({
+          date: formData.get("date"),
+          hours: formData.get("hours"),
+          installed: formData.get("installed"),
+          problems: formData.get("problems"),
+          solution: formData.get("solution"),
+          lessons: formData.get("lessons")
+        });
+        logForm.reset();
+        render();
+      });
+
+      render();
+    </script>
   </body>
 </html>

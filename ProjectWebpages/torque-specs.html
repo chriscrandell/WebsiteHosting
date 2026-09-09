@@ -10,7 +10,7 @@
     <div class="page">
       <header class="hero">
         <h1>Torque specs library</h1>
-        <p>Search for fasteners, clamps, and hardware by part name and instantly pull the torque requirements and notes.</p>
+        <p>Search for fasteners, clamps, and hardware by part name and pull up torque requirements and notes as you confirm them.</p>
         <div class="nav-links">
           <a href="projects.html">Project hub</a>
           <a href="wiring.html">Wiring</a>
@@ -18,32 +18,156 @@
         </div>
       </header>
 
+      <div class="note warn">
+        Every value below starts as <strong>TBD</strong> on purpose — none of these are filled in with guessed numbers.
+        Confirm each spec against the M104/W201 factory service manual (WIS/EPC) or the specific part's install
+        instructions, then record the confirmed value here using "Edit".
+      </div>
+
       <section class="panel">
         <input id="torqueSearch" placeholder="Search wheel, bolt, pulley..." />
+        <div class="controls-row">
+          <button class="add-part-btn" type="button" id="addSpecBtn">Add a fastener</button>
+        </div>
         <div id="torqueResults" style="margin-top: 12px;"></div>
       </section>
     </div>
 
+    <div class="modal-backdrop" id="specModal">
+      <div class="modal-card">
+        <h3 id="specModalTitle">Add a fastener</h3>
+        <form id="specForm">
+          <div class="form-grid">
+            <label class="full">
+              Fastener / location
+              <input name="name" required />
+            </label>
+            <label>
+              Torque value
+              <input name="torque" placeholder="TBD — verify factory manual" />
+            </label>
+            <label>
+              Tool
+              <input name="tool" placeholder="e.g. Torque wrench" />
+            </label>
+            <label>
+              Threadlocker?
+              <select name="threadlocker">
+                <option value="TBD">TBD</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </select>
+            </label>
+            <label>
+              Replace fastener each time?
+              <select name="replace">
+                <option value="TBD">TBD</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </select>
+            </label>
+          </div>
+          <div class="form-actions">
+            <button type="button" id="closeSpecModal">Cancel</button>
+            <button class="submit-btn" type="submit">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <script>
-      const specs = [
-        { name: "Wheel Bolts", torque: "110 Nm", tool: "Socket", threadlocker: "No", replace: "No" },
-        { name: "Oil Pan Bolts", torque: "12 Nm", tool: "Torque wrench", threadlocker: "No", replace: "No" },
-        { name: "Turbo Feed Line", torque: "18 Nm", tool: "Flare wrench", threadlocker: "No", replace: "Yes" }
+      const SPEC_KEY = "robinTorqueSpecs";
+      const seedSpecs = [
+        { id: "wheel-bolts", name: "Wheel Bolts (Sparco Terra)", torque: "TBD — verify factory manual", tool: "Torque wrench", threadlocker: "No", replace: "No" },
+        { id: "oil-pan-bolts", name: "Oil Pan Bolts", torque: "TBD — verify factory manual", tool: "Torque wrench", threadlocker: "No", replace: "No" },
+        { id: "head-bolts", name: "Cylinder Head Bolts (M104)", torque: "TBD — verify factory manual, torque-to-yield sequence", tool: "Torque wrench + angle gauge", threadlocker: "TBD", replace: "TBD — many head bolts are single-use, confirm" },
+        { id: "turbo-feed-line", name: "Turbo Oil Feed Line", torque: "TBD — verify factory manual", tool: "Flare wrench", threadlocker: "No", replace: "TBD" },
+        { id: "engine-mount-bolts", name: "Engine Mount Bolts (M104 swap)", torque: "TBD — verify factory manual", tool: "Torque wrench", threadlocker: "TBD", replace: "TBD" },
+        { id: "air-cup-fittings", name: "Air Cup Fittings", torque: "TBD — verify manufacturer spec", tool: "Wrench (per kit spec)", threadlocker: "TBD", replace: "TBD" },
+        { id: "brake-caliper-bolts", name: "Brake Caliper Bolts", torque: "TBD — verify factory manual", tool: "Torque wrench", threadlocker: "TBD", replace: "TBD" }
       ];
+
+      function loadSpecs() {
+        try {
+          const raw = localStorage.getItem(SPEC_KEY);
+          if (raw) return JSON.parse(raw);
+        } catch (err) {
+          console.warn("Could not read saved torque specs:", err);
+        }
+        localStorage.setItem(SPEC_KEY, JSON.stringify(seedSpecs));
+        return seedSpecs.map((s) => ({ ...s }));
+      }
+
+      function saveSpecs(specs) {
+        localStorage.setItem(SPEC_KEY, JSON.stringify(specs));
+      }
+
       const torqueSearch = document.getElementById("torqueSearch");
       const torqueResults = document.getElementById("torqueResults");
+      const addSpecBtn = document.getElementById("addSpecBtn");
+      const specModal = document.getElementById("specModal");
+      const specForm = document.getElementById("specForm");
+      const closeSpecModal = document.getElementById("closeSpecModal");
+      let editingId = null;
 
       function renderTorque() {
+        const specs = loadSpecs();
         const query = torqueSearch.value.toLowerCase();
         const filtered = specs.filter((spec) => spec.name.toLowerCase().includes(query));
-        torqueResults.innerHTML = filtered.map((spec) => `
+        torqueResults.innerHTML = filtered
+          .map(
+            (spec) => `
           <div class="list-card">
             <h4>${spec.name}</h4>
             <p><strong>Torque:</strong> ${spec.torque} • <strong>Tool:</strong> ${spec.tool}</p>
             <p><strong>Threadlocker:</strong> ${spec.threadlocker} • <strong>Replace?</strong> ${spec.replace}</p>
+            <p><button type="button" class="edit-spec" data-id="${spec.id}" style="background:none;border:none;color:var(--accent);cursor:pointer;padding:0;font:inherit;">Edit</button></p>
           </div>
-        `).join("");
+        `
+          )
+          .join("");
+
+        torqueResults.querySelectorAll(".edit-spec").forEach((btn) => {
+          btn.addEventListener("click", () => openModal(btn.dataset.id));
+        });
       }
+
+      function openModal(id) {
+        const specs = loadSpecs();
+        editingId = id || null;
+        const spec = id ? specs.find((s) => s.id === id) : null;
+        document.getElementById("specModalTitle").textContent = spec ? `Edit: ${spec.name}` : "Add a fastener";
+        specForm.name.value = spec ? spec.name : "";
+        specForm.torque.value = spec ? spec.torque : "";
+        specForm.tool.value = spec ? spec.tool : "";
+        specForm.threadlocker.value = spec ? spec.threadlocker : "TBD";
+        specForm.replace.value = spec ? spec.replace : "TBD";
+        specModal.classList.add("open");
+      }
+
+      addSpecBtn.addEventListener("click", () => openModal(null));
+      closeSpecModal.addEventListener("click", () => specModal.classList.remove("open"));
+      specModal.addEventListener("click", (e) => { if (e.target === specModal) specModal.classList.remove("open"); });
+
+      specForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const specs = loadSpecs();
+        const data = new FormData(specForm);
+        const record = {
+          id: editingId || data.get("name").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, ""),
+          name: data.get("name"),
+          torque: data.get("torque") || "TBD — verify factory manual",
+          tool: data.get("tool") || "TBD",
+          threadlocker: data.get("threadlocker"),
+          replace: data.get("replace")
+        };
+        const idx = specs.findIndex((s) => s.id === record.id);
+        if (idx >= 0) specs[idx] = record; else specs.push(record);
+        saveSpecs(specs);
+        specModal.classList.remove("open");
+        renderTorque();
+      });
+
       torqueSearch.addEventListener("input", renderTorque);
       renderTorque();
     </script>

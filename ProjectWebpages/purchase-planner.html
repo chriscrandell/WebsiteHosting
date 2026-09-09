@@ -10,7 +10,7 @@
     <div class="page">
       <header class="hero">
         <h1>Purchase planner</h1>
-        <p>Set a spend target and the planner will suggest the highest-value next purchases based on the current build state.</p>
+        <p>Set a spend target and the planner suggests the highest-priority next purchases that fit, pulled live from the parts database.</p>
         <div class="nav-links">
           <a href="projects.html">Project hub</a>
           <a href="master-parts-database.html">Parts database</a>
@@ -18,9 +18,13 @@
         </div>
       </header>
 
+      <div class="note">
+        Costs shown are planning-stage estimates (est.) unless a part already has an actual cost recorded. Update a part's real price in the <a href="master-parts-database.html">parts database</a> once you have a quote.
+      </div>
+
       <section class="panel">
         <h2>Budget target</h2>
-        <input id="budgetInput" type="number" value="500" />
+        <input id="budgetInput" type="number" value="500" min="0" step="1" />
         <div class="stats" style="margin-top: 16px;">
           <div class="stat"><span>Best next purchases</span><strong id="plannerTotal">$0</strong></div>
           <div class="stat"><span>Recommended set</span><strong id="plannerCount">0</strong></div>
@@ -29,21 +33,32 @@
       </section>
     </div>
 
+    <script src="data/parts.js"></script>
+    <script src="app.js"></script>
     <script>
       const budgetInput = document.getElementById("budgetInput");
       const plannerTotal = document.getElementById("plannerTotal");
       const plannerCount = document.getElementById("plannerCount");
       const plannerResults = document.getElementById("plannerResults");
-      const candidates = [
-        { name: "Timing Chain", cost: 240, priority: "High" },
-        { name: "Water Pump", cost: 160, priority: "High" },
-        { name: "Front Main Seal", cost: 87, priority: "High" },
-        { name: "Engine Mounts", cost: 320, priority: "Medium" },
-        { name: "Intercooler Piping", cost: 180, priority: "Medium" }
-      ];
+
+      const priorityRank = { Preferred: 0, Acceptable: 1, Exploring: 2, "": 1 };
+
+      function getCandidates() {
+        return RobinApp.loadParts()
+          .filter((p) => p.status === "needed" || p.status === "ordered")
+          .map((p) => ({
+            id: p.id,
+            name: p.name,
+            cost: p.actualCost != null ? p.actualCost : (p.estCost || 0),
+            isEstimate: p.actualCost == null,
+            priority: priorityRank[p.recommendation] != null ? p.recommendation || "Medium" : "Medium"
+          }))
+          .sort((a, b) => (priorityRank[a.priority] ?? 1) - (priorityRank[b.priority] ?? 1) || a.cost - b.cost);
+      }
 
       function renderPlanner() {
         const budget = Number(budgetInput.value || 0);
+        const candidates = getCandidates();
         const selected = [];
         let total = 0;
 
@@ -54,11 +69,20 @@
           }
         });
 
-        plannerTotal.textContent = `$${total}`;
+        plannerTotal.textContent = `$${total.toLocaleString()}`;
         plannerCount.textContent = selected.length;
-        plannerResults.innerHTML = selected.length ? selected.map((item) => `
-          <div class="list-card"><h4>✓ ${item.name}</h4><p>${item.priority} priority • Estimated cost: $${item.cost}</p></div>
-        `).join("") : '<div class="list-card"><h4>No purchases fit the budget yet</h4><p>Try a higher target or reorder the planner priorities.</p></div>';
+        plannerResults.innerHTML = selected.length
+          ? selected
+              .map(
+                (item) => `
+          <div class="list-card">
+            <h4>✓ ${item.name}</h4>
+            <p>${item.priority || "Medium"} priority • ${item.isEstimate ? "Estimated" : "Actual"} cost: $${item.cost.toLocaleString()}${item.isEstimate ? " (est.)" : ""} • <a href="part-detail.html?part=${encodeURIComponent(item.id)}">Detail</a></p>
+          </div>
+        `
+              )
+              .join("")
+          : '<div class="list-card"><h4>No purchases fit the budget yet</h4><p>Try a higher target, or mark more parts "needed" in the parts database.</p></div>';
       }
 
       budgetInput.addEventListener("input", renderPlanner);
