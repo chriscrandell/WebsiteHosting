@@ -1,87 +1,64 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>Taniti Tourism Prototype</title>
-    
-    <style>
-      body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
-      nav { background: #0066aa; color: white; padding: 10px; display: flex; gap: 20px; }
-      nav a { color: white; cursor: pointer; }
-      section { display: none; padding: 20px; }
-      #home { display: block; }
-      h2 { margin-top: 0; }
-      .button { background: #0066aa; color: white; padding: 10px 15px; display: inline-block; margin-top: 10px; cursor: pointer; }
-    </style>
-    
-    <script>
-      function showSection(id){
-        document.querySelectorAll("section").forEach(s => s.style.display = "none");
-        document.getElementById(id).style.display = "block";
-      }
-    </script>
-  </head>
-  
-  <body>
-    
-    <nav>
-      <a onclick="showSection('home')">Home</a>
-      <a onclick="showSection('attractions')">Attractions</a>
-      <a onclick="showSection('lodging')">Lodging</a>
-      <a onclick="showSection('dining')">Dining</a>
-      <a onclick="showSection('transport')">Getting Around</a>
-      <a onclick="showSection('plan')">Plan Your Trip</a>
-    </nav>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Home</title>
+<link rel="stylesheet" href="tiles.css">
+</head>
+<body>
 
-    <section id="home">
-      <h2>Welcome to Taniti</h2>
-      <p>Discover beaches, rainforests, volcano adventures, and cultural experiences.</p>
-      <div class="button" onclick="showSection('plan')">Plan Your Trip</div>
-    </section>
-  
-    <section id="attractions">
-      <h2>Attractions</h2>
-      <ul>
-        <li>Beaches</li>
-        <li>Rainforest Hikes</li>
-        <li>Active Volcano Tours</li>
-        <li>Boat, Bus, and Helicopter Tours</li>
-        <li>Entertainment in Merriton Landing</li>
-      </ul>
-    </section>
+  <label class="day-night">
+    <input type="checkbox" checked />
+    <div></div>
+  </label>
 
-    <section id="lodging">
-      <h2>Lodging Options</h2>
-      <ul>
-        <li>4-Star Resort — $200 per night</li>
-        <li>Family-Owned Hotels — $99 per night</li>
-        <li>Bed & Breakfasts — $80 per night</li>
-        <li>Hostel — $49 per night</li>
-      </ul>
-    </section>
+<div class="grid">
+   <a class="card" href="./ProjectWebpages/projects.html" style="display:block; text-decoration:none; color:inherit;">
+    <span class="icon">
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M14.5 3.5C14.5 3.5 14.5 5.5 12 5.5C9.5 5.5 9.5 3.5 9.5 3.5H7.5L4.20711 6.79289C3.81658 7.18342 3.81658 7.81658 4.20711 8.20711L6.5 10.5V20.5H17.5V10.5L19.7929 8.20711C20.1834 7.81658 20.1834 7.18342 19.7929 6.79289L16.5 3.5H14.5Z"
+        />
+      </svg>
+    </span>
+    <h4>Project Robin</h4>
+    <p>
+      Engineering database prototype with status tracking, budget insights, dependency warnings, and weight planning.
+    </p>
+    <div class="shine"></div>
+    <div class="background">
+      <div class="tiles">
+        <div class="tile tile-1"></div>
+        <div class="tile tile-2"></div>
+        <div class="tile tile-3"></div>
+        <div class="tile tile-4"></div>
+
+        <div class="tile tile-5"></div>
+        <div class="tile tile-6"></div>
+        <div class="tile tile-7"></div>
+        <div class="tile tile-8"></div>
+
+        <div class="tile tile-9"></div>
+        <div class="tile tile-10"></div>
+      </div>
+
+      <div class="line line-1"></div>
+      <div class="line line-2"></div>
+      <div class="line line-3"></div>
+    </div>
     
-    <section id="dining">
-      <h2>Dining</h2>
-      <ul>
-        <li>Local Fish & Rice</li>
-        <li>American-Style Restaurants</li>
-        <li>Pan-Asian Cuisine</li>
-      </ul>
-    </section>
-    
-    <section id="transport">
-      <h2>Getting Around</h2>
-      <p>Public buses, taxis, rental cars, bike rentals, and walkable city layout.</p>
-    </section>
-    
-    <section id="plan">
-      <h2>Plan Your Trip</h2>
-      <ul>
-        <li><a onclick="showSection('lodging')">Find lodging</a></li>
-        <li><a onclick="showSection('attractions')">Explore attractions</a></li>
-        <li><a onclick="showSection('transport')">Check transportation</a></li>
-        <li>Learn safety and holiday info</li>
-      </ul>
-    </section>
-    
-  </body>
+  </div>
+
+<script src="tiles.js"></script>
+
+</body>
 </html>
